@@ -10,11 +10,12 @@ class Game {
     this.height = height;
     this.currPlayer = 1;
     this.board = [];
-    this.makeBoard()
-    this.makeHtmlBoard()
+
   }
 
+
   makeBoard() {
+    this.board = [];
     for (let y = 0; y < this.height; y++) {
       this.board.push(Array.from({ length: this.width }));
     }
@@ -26,8 +27,7 @@ class Game {
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
     top.setAttribute('id', 'column-top');
-    console.log(this.handleClick);
-    top.addEventListener('click', this.handleClick);
+    top.addEventListener('click', (e) => this.handleClick(e));
   
     for (let x = 0; x < this.width; x++) {
       const headCell = document.createElement('td');
@@ -87,16 +87,16 @@ class Game {
   
     // place piece in board and add to HTML table
     this.board[y][x] = this.currPlayer;
-    placeInTable(y, x);
+   this.placeInTable(y, x);
     
     // check for win
-    if (checkForWin()) {
-      return endGame(`Player ${this.currPlayer} won!`);
+    if (this.checkForWin()) {
+      return this.endGame(`Player ${this.currPlayer} won!`);
     }
     
     // check for tie
     if (this.board.every(row => row.every(cell => cell))) {
-      return endGame('Tie!');
+      return this.endGame('Tie!');
     }
       
     // switch players
@@ -104,6 +104,17 @@ class Game {
   }
 
   checkForWin() { 
+    const _win = (cells) => {
+      return cells.every(
+        ([y, x]) =>
+          y >= 0 &&
+          y < this.height &&
+          x >= 0 &&
+          x < this.width &&
+          this.board[y][x] === this.currPlayer
+      );
+    }
+
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
 
@@ -112,25 +123,27 @@ class Game {
         const diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
         const diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
 
-        if (this._win(horiz) || this._win(vert) || this._win(diagDR) || this._win(diagDL)) {
+        if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
           return true;
         }
       }
     }
   }
-  
-  _win(cells) {
-    return cells.every(
-      ([y, x]) =>
-        y >= 0 &&
-        y < this.height &&
-        x >= 0 &&
-        x < this.width &&
-        this.board[y][x] === this.currPlayer
-    );
+
+  startGame() {
+    this.makeBoard();
+    const board = document.getElementById('board');
+    for(let i = board.childNodes.length-1; i>= 0; i--) {
+      board.removeChild(board.childNodes[i]);
+    }
+    if(board.childNodes.length === 0) this.makeHtmlBoard();
   }
+
 
 }
 
-new Game();
+let game = new Game();
+let btn = document.getElementsByTagName('button')[0];
+btn.addEventListener('click', game.startGame.bind(game))
+
 
