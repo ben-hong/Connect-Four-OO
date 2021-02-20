@@ -4,12 +4,17 @@
  * column until a player gets four-in-a-row (horiz, vert, or diag) or until
  * board fills (tie)
  */
+
+class Player {
+  constructor(color, num) {
+    this.color = color;
+    this.number = num;
+  }
+}
 class Game {
   constructor(width=7, height=6) {
     this.width = width;
     this.height = height;
-    this.currPlayer = 1;
-    this.board = [];
     this.gameOver = false;
   }
 
@@ -63,19 +68,18 @@ class Game {
   placeInTable(y, x) {
     const piece = document.createElement('div');
     piece.classList.add('piece');
-    piece.classList.add(`p${this.currPlayer}`);
+    piece.setAttribute('style', `background-color: ${this.currPlayer.color}`)
     piece.style.top = -50 * (y + 2);
-  
     const spot = document.getElementById(`${y}-${x}`);
     spot.append(piece);
   }
   
   /** endGame: announce game end */
-  
   endGame(msg) {
     this.gameOver = true;
     alert(msg);
   }
+
   handleClick(evt) {
     // get x from ID of clicked cell
     if (this.gameOver) {
@@ -90,12 +94,12 @@ class Game {
     }
   
     // place piece in board and add to HTML table
-    this.board[y][x] = this.currPlayer;
+    this.board[y][x] = this.currPlayer.number;
    this.placeInTable(y, x);
     
     // check for win
     if (this.checkForWin()) {
-      return this.endGame(`Player ${this.currPlayer} won!`);
+      return this.endGame(`Player ${this.currPlayer.number} won!`);
     }
     
     // check for tie
@@ -104,7 +108,7 @@ class Game {
     }
       
     // switch players
-    this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+    this.currPlayer = this.currPlayer.number === 1 ? this.p2 : this.p1;
   }
 
   checkForWin() { 
@@ -115,7 +119,7 @@ class Game {
           y < this.height &&
           x >= 0 &&
           x < this.width &&
-          this.board[y][x] === this.currPlayer
+          this.board[y][x] === this.currPlayer.number
       );
     }
 
@@ -138,17 +142,18 @@ class Game {
     this.makeBoard();
     this.gameOver = false;
     const board = document.getElementById('board');
-    for(let i = board.childNodes.length-1; i>= 0; i--) {
-      board.removeChild(board.childNodes[i]);
-    }
-    if(board.childNodes.length === 0) this.makeHtmlBoard();
+    board.innerHTML = '';
+    this.makeHtmlBoard();
+    let color1 = document.getElementById('player1').value;
+    let color2 = document.getElementById('player2').value;
+    this.p1 = new Player(color1, 1);
+    this.p2 = new Player(color2, 2);
+    this.currPlayer = this.p1;
   }
-
-
 }
 
 let game = new Game();
 let btn = document.getElementsByTagName('button')[0];
-btn.addEventListener('click', game.startGame.bind(game))
+btn.addEventListener('click', () => game.startGame())
 
 
