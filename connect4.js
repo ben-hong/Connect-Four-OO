@@ -10,7 +10,7 @@ class Game {
     this.height = height;
     this.currPlayer = 1;
     this.board = [];
-
+    this.gameOver = false;
   }
 
 
@@ -27,8 +27,8 @@ class Game {
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
     top.setAttribute('id', 'column-top');
+
     top.addEventListener('click', (e) => this.handleClick(e));
-  
     for (let x = 0; x < this.width; x++) {
       const headCell = document.createElement('td');
       headCell.setAttribute('id', x);
@@ -73,10 +73,14 @@ class Game {
   /** endGame: announce game end */
   
   endGame(msg) {
+    this.gameOver = true;
     alert(msg);
   }
   handleClick(evt) {
     // get x from ID of clicked cell
+    if (this.gameOver) {
+      return;
+    }
     const x = +evt.target.id;
   
     // get next spot in column (if none, ignore click)
@@ -132,6 +136,7 @@ class Game {
 
   startGame() {
     this.makeBoard();
+    this.gameOver = false;
     const board = document.getElementById('board');
     for(let i = board.childNodes.length-1; i>= 0; i--) {
       board.removeChild(board.childNodes[i]);
